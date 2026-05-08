@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+
+  <title>Faculty Dashboard</title>
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-100 min-h-screen">
+
+  <!-- ================= HEADER ================= -->
+
+  <header class="bg-white shadow">
+
+    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+
+      <h1 class="text-3xl font-bold text-blue-800">
+        Faculty Dashboard
+      </h1>
+
+      <button
+        onclick="logout()"
+        class="bg-red-500 text-white px-5 py-2 rounded-lg hover:bg-red-700"
+      >
+        Logout
+      </button>
+
+    </div>
+
+  </header>
+
+  <!-- ================= MAIN ================= -->
+
+  <main class="max-w-7xl mx-auto py-10 px-4">
+
+    <!-- EMPTY MESSAGE -->
+
+    <div
+      id="noData"
+      class="hidden bg-white rounded-xl shadow p-6 text-center"
+    >
+
+      <p class="text-lg text-slate-600">
+        No leave requests available
+      </p>
+
+    </div>
+
+    <!-- TABLE -->
+
+    <div
+      id="tableContainer"
+      class="bg-white rounded-xl shadow overflow-x-auto"
+    >
+
+      <table class="w-full text-left border-collapse">
+
+        <thead class="bg-blue-700 text-white">
+
+          <tr>
+
+            <th class="p-4">Student ID</th>
+
+            <th class="p-4">Student Name</th>
+
+            <th class="p-4">Email</th>
+
+            <th class="p-4">Class</th>
+
+            <th class="p-4">Leave Type</th>
+
+            <th class="p-4">Start Date</th>
+
+            <th class="p-4">End Date</th>
+
+            <th class="p-4">Reason</th>
+
+            <th class="p-4">Status</th>
+
+            <th class="p-4">Action</th>
+
+          </tr>
+
+        </thead>
+
+        <tbody
+          id="leaveTable"
+          class="bg-white"
+        ></tbody>
+
+      </table>
+
+    </div>
+
+  </main>
+
+  <!-- ================= SCRIPT ================= -->
+
+  <script>
+
+    // ================= API URL =================
+
+    const API_URL =
+      "http://localhost:3000/api/leave";
+
+    // ================= TEACHER ID =================
+
+    const teacherId =
+      localStorage.getItem("teacherId")
+      || "T101";
+
+    // ================= LOAD LEAVES =================
+
+    async function loadLeaves() {
+
+      try {
+
+        const response = await fetch(
+
+          `${API_URL}/requests?teacherId=${teacherId}`
+
+        );
+
+        const data = await response.json();
+
+        console.log(
+          "LEAVE DATA:",
+          data
+        );
+
+        // NO DATA
+
+        if (!data.length) {
+
+          document
+            .getElementById("tableContainer")
+            .classList.add("hidden");
+
+          document
+            .getElementById("noData")
+            .classList.remove("hidden");
+
+          return;
+
+        }
+
+        let rows = "";
+
+        data.forEach((leave) => {
+
+          rows += `
+
+            <tr class="border-b hover:bg-slate-100">
+
+              <td class="p-4">
+                ${leave.studentId || ""}
+              </td>
+
+              <td class="p-4">
+                ${leave.studentName || ""}
+              </td>
+
+              <td class="p-4">
+                ${leave.studentEmail || ""}
+              </td>
+
+              <td class="p-4">
+                ${leave.className || ""}
+              </td>
+
+              <td class="p-4">
+                ${leave.leaveType || ""}
+              </td>
+
+              <td class="p-4">
+                ${leave.startDate || ""}
+              </td>
+
+              <td class="p-4">
+                ${leave.endDate || ""}
+              </td>
+
+              <td class="p-4">
+                ${leave.reason || ""}
+              </td>
+
+              <td class="p-4">
+
+                <span class="
+                  px-3 py-1 rounded-full text-white
+
+                  ${leave.status === 'approved'
+                    ? 'bg-green-600'
+                    : leave.status === 'rejected'
+                    ? 'bg-red-600'
+                    : 'bg-yellow-500'}
+                ">
+
+                  ${leave.status}
+
+                </span>
+
+              </td>
+
+              <td class="p-4 flex gap-2">
+
+                <button
+
+                  onclick="processLeave(
+                    ${leave.id},
+                    'approved'
+                  )"
+
+                  class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-800"
+
+                >
+
+                  Approve
+
+                </button>
+
+                <button
+
+                  onclick="processLeave(
+                    ${leave.id},
+                    'rejected'
+                  )"
+
+                  class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-800"
+
+                >
+
+                  Reject
+
+                </button>
+
+              </td>
+
+            </tr>
+
+          `;
+
+        });
+
+        document.getElementById(
+          "leaveTable"
+        ).innerHTML = rows;
+
+      } catch (err) {
+
+        console.error(err);
+
+        alert(
+          "Failed to load leave requests"
+        );
+
+      }
+
+    }
+
+    // ================= PROCESS LEAVE =================
+
+    async function processLeave(id, action) {
+
+      try {
+
+        const response = await fetch(
+
+          `${API_URL}/requests/${id}/process`,
+
+          {
+
+            method: "POST",
+
+            headers: {
+
+              "Content-Type":
+                "application/json"
+
+            },
+
+            body: JSON.stringify({
+
+              action,
+
+              teacherId,
+
+              comment:
+
+                action === "approved"
+
+                ? "Approved by faculty"
+
+                : "Rejected by faculty"
+
+            })
+
+          }
+
+        );
+
+        const result =
+          await response.json();
+
+        console.log(result);
+
+        if(response.ok){
+
+          alert(result.message);
+
+          // RELOAD TABLE
+
+          loadLeaves();
+
+        } else {
+
+          alert(
+            result.error ||
+            "Action failed"
+          );
+
+        }
+
+      } catch (err) {
+
+        console.error(err);
+
+        alert("Server error");
+
+      }
+
+    }
+
+    // ================= LOGOUT =================
+
+    function logout() {
+
+      localStorage.clear();
+
+      window.location.href =
+        "landingpage.html";
+
+    }
+
+    // ================= INITIAL LOAD =================
+
+    loadLeaves();
+
+  </script>
+
+</body>
+
+</html>

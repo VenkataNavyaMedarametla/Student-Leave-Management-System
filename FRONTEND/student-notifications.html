@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8" />
+
+  <title>Student Notifications</title>
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+
+<body class="bg-slate-100 min-h-screen">
+
+  <!-- ================= HEADER ================= -->
+
+  <header class="bg-white shadow">
+
+    <div class="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
+
+      <h1 class="text-2xl font-bold text-blue-800">
+        Student Notifications
+      </h1>
+
+      <a
+        href="student-dashboard.html"
+        class="text-blue-600 font-medium hover:underline"
+      >
+        ⬅ Back to Dashboard
+      </a>
+
+    </div>
+
+  </header>
+
+  <!-- ================= MAIN ================= -->
+
+  <main class="max-w-4xl mx-auto py-10 px-4">
+
+    <div class="bg-white rounded-xl shadow p-6">
+
+      <!-- SEARCH -->
+
+      <div class="flex flex-col md:flex-row gap-4 mb-6">
+
+        <input
+
+          id="studentId"
+
+          type="text"
+
+          placeholder="Enter Student ID"
+
+          class="flex-1 border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+
+        />
+
+        <button
+
+          onclick="loadNotifications()"
+
+          class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-800 transition"
+
+        >
+
+          Get Notifications
+
+        </button>
+
+      </div>
+
+      <!-- LOADING -->
+
+      <div
+        id="loadingMsg"
+        class="hidden text-blue-600 font-medium mb-4"
+      >
+
+        Loading notifications...
+
+      </div>
+
+      <!-- NOTIFICATION LIST -->
+
+      <div
+        id="notificationContainer"
+        class="space-y-4"
+      ></div>
+
+      <!-- NO DATA -->
+
+      <div
+
+        id="noDataMsg"
+
+        class="hidden text-center text-red-600 font-semibold mt-6"
+
+      >
+
+        No notifications found for this Student ID
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ================= SCRIPT ================= -->
+
+  <script>
+
+    const API_URL =
+      "http://localhost:3000/api/leave";
+
+    // ================= LOAD NOTIFICATIONS =================
+
+    async function loadNotifications() {
+
+      const studentId =
+        document
+        .getElementById("studentId")
+        .value
+        .trim();
+
+      const container =
+        document.getElementById(
+          "notificationContainer"
+        );
+
+      const noData =
+        document.getElementById(
+          "noDataMsg"
+        );
+
+      const loading =
+        document.getElementById(
+          "loadingMsg"
+        );
+
+      // RESET UI
+
+      container.innerHTML = "";
+
+      noData.classList.add("hidden");
+
+      loading.classList.remove("hidden");
+
+      if (!studentId) {
+
+        loading.classList.add("hidden");
+
+        alert(
+          "Please enter Student ID"
+        );
+
+        return;
+
+      }
+
+      try {
+
+        console.log(
+          "FETCHING FOR STUDENT:",
+          studentId
+        );
+
+        const response = await fetch(
+
+          `${API_URL}/student/${studentId}/notifications`
+
+        );
+
+        if (!response.ok) {
+
+          throw new Error(
+            "Failed to fetch notifications"
+          );
+
+        }
+
+        const data =
+          await response.json();
+
+        console.log(
+          "NOTIFICATIONS:",
+          data
+        );
+
+        loading.classList.add("hidden");
+
+        // NO DATA
+
+        if (
+          !data ||
+          data.length === 0
+        ) {
+
+          noData.classList.remove(
+            "hidden"
+          );
+
+          return;
+
+        }
+
+        // SHOW DATA
+
+        data.forEach((n) => {
+
+          const card =
+            document.createElement("div");
+
+          card.className =
+
+            "border border-slate-200 rounded-lg p-5 bg-slate-50 shadow-sm";
+
+          card.innerHTML = `
+
+            <div class="flex justify-between items-start">
+
+              <div>
+
+                <h2 class="text-lg font-bold text-blue-700">
+
+                  ${n.title || "Notification"}
+
+                </h2>
+
+                <p class="text-slate-700 mt-2">
+
+                  ${n.message || ""}
+
+                </p>
+
+              </div>
+
+            </div>
+
+            <div class="mt-3 text-sm text-slate-500">
+
+              ${n.createdAt || ""}
+
+            </div>
+
+          `;
+
+          container.appendChild(card);
+
+        });
+
+      } catch (err) {
+
+        console.error(err);
+
+        loading.classList.add("hidden");
+
+        alert(
+          "Backend not responding or server error"
+        );
+
+      }
+
+    }
+
+  </script>
+
+</body>
+
+</html>
