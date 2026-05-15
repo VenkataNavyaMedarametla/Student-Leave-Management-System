@@ -18,8 +18,6 @@
 
 <body class="bg-slate-100 min-h-screen">
 
-  <!-- ================= HEADER ================= -->
-
   <header class="bg-white shadow">
 
     <div class="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
@@ -38,8 +36,6 @@
     </div>
 
   </header>
-
-  <!-- ================= MAIN ================= -->
 
   <main class="max-w-4xl mx-auto py-10 px-4">
 
@@ -75,8 +71,6 @@
 
       </div>
 
-      <!-- LOADING -->
-
       <div
         id="loadingMsg"
         class="hidden text-blue-600 font-medium mb-4"
@@ -86,14 +80,10 @@
 
       </div>
 
-      <!-- NOTIFICATION LIST -->
-
       <div
         id="notificationContainer"
         class="space-y-4"
       ></div>
-
-      <!-- NO DATA -->
 
       <div
 
@@ -111,14 +101,10 @@
 
   </main>
 
-  <!-- ================= SCRIPT ================= -->
-
   <script>
 
     const API_URL =
       "http://localhost:3000/api/leave";
-
-    // ================= LOAD NOTIFICATIONS =================
 
     async function loadNotifications() {
 

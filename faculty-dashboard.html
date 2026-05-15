@@ -16,8 +16,6 @@
 
 <body class="bg-slate-100 min-h-screen">
 
-  <!-- ================= HEADER ================= -->
-
   <header class="bg-white shadow">
 
     <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
@@ -36,8 +34,6 @@
     </div>
 
   </header>
-
-  <!-- ================= MAIN ================= -->
 
   <main class="max-w-7xl mx-auto py-10 px-4">
 
@@ -102,22 +98,14 @@
 
   </main>
 
-  <!-- ================= SCRIPT ================= -->
-
   <script>
-
-    // ================= API URL =================
 
     const API_URL =
       "http://localhost:3000/api/leave";
 
-    // ================= TEACHER ID =================
-
     const teacherId =
       localStorage.getItem("teacherId")
       || "T101";
-
-    // ================= LOAD LEAVES =================
 
     async function loadLeaves() {
 
@@ -135,8 +123,6 @@
           "LEAVE DATA:",
           data
         );
-
-        // NO DATA
 
         if (!data.length) {
 
@@ -266,8 +252,6 @@
 
     }
 
-    // ================= PROCESS LEAVE =================
-
     async function processLeave(id, action) {
 
       try {
@@ -339,18 +323,14 @@
 
     }
 
-    // ================= LOGOUT =================
-
     function logout() {
 
       localStorage.clear();
 
       window.location.href =
-        "landingpage.html";
+        "index.html";
 
     }
-
-    // ================= INITIAL LOAD =================
 
     loadLeaves();
 
